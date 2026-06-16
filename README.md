@@ -71,10 +71,8 @@ Python (main.py)  ←→  Bridge RPC  ←→  sketch.ino  ←→  I2C  ←→  r
 
 ### 7. 系统控制
 
-协处理器系统寄存器支持：
-- 芯片 ID 与固件版本读取
+robot shield 系统寄存器支持：
 - 电源开关控制
-- 自动关机配置
 - **PWR 按键信号** — 单击 / 双击进入零位 / 双击退出零位
 - **USR 按键信号** — PTT（Push-to-Talk）长按开始录音 / 松开停止录音
 
