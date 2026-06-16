@@ -10,13 +10,13 @@ Python (main.py)  ←→  Bridge RPC  ←→  sketch.ino  ←→  I2C  ←→  r
 
 - **Python 端**：通过 Arduino Bridge RPC 调用本 sketch 暴露的函数
 - **sketch.ino**：注册 Bridge 函数绑定，入口逻辑极简，`loop()` 为空
-- **I2C 协处理器**：地址 `0x20`，负责 PWM 生成（PCA9685）、ADC 采样（电池/电流/电压）等底层硬件操作
+- **I2C robot shield**：地址 `0x20`，负责 PWM 生成（PCA9685）、ADC 采样（电池/电流/电压）等底层硬件操作
 
 ## 主要功能
 
 ### 1. I2C 寄存器透传
 
-`read_reg` / `write_reg` 将 I2C 总线操作封装为 Bridge 函数，Python 通过这两个函数间接读写协处理器的全部寄存器，避免了 I2C 多主竞争问题。
+`read_reg` / `write_reg` 将 I2C 总线操作封装为 Bridge 函数，Python 通过这两个函数间接读写robot shield的全部寄存器，避免了 I2C 多主竞争问题。
 
 ### 2. PWM 控制（12 通道）
 
@@ -57,7 +57,7 @@ Python (main.py)  ←→  Bridge RPC  ←→  sketch.ino  ←→  I2C  ←→  r
 
 ### 5. 电源监控
 
-从协处理器寄存器读取电池状态：
+从robot shield寄存器读取电池状态：
 
 - `get_bat_volt` — 电池电压（mV）
 - `get_bat_percent` — 电池电量百分比（0–100）
