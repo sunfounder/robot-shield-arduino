@@ -1,3 +1,11 @@
+/**
+ * @file RobotShield.h
+ * @brief Main header for the RobotShield hardware abstraction library.
+ *
+ * Include this header to access all RobotShield modules: I2cBus,
+ * PwmChannel, Servo, Motor, PowerMonitor, and RobotShieldBridge.
+ */
+
 #ifndef ROBOT_SHIELD_H
 #define ROBOT_SHIELD_H
 
