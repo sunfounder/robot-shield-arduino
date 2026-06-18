@@ -1,3 +1,10 @@
+/**
+ * @file RobotShieldBridge.cpp
+ * @brief Bridge registration hub — static instance arrays + Bridge.provide() bindings.
+ *
+ * All Bridge function names must match the Python side's Bridge.call() strings exactly.
+ */
+
 #include "RobotShieldBridge.h"
 #include "PwmChannel.h"
 #include "Servo.h"
@@ -6,7 +13,7 @@
 #include "I2cBus.h"
 #include "Arduino_RouterBridge.h"
 
-//------------------------ Static instances ------------------------//
+// Static module instances — one per channel/motor
 
 static PwmChannel _pwms[12] = {
     PwmChannel(0), PwmChannel(1), PwmChannel(2), PwmChannel(3),
@@ -50,10 +57,10 @@ void RobotShieldBridge::registerAll()
     Bridge.provide("write_reg", I2cBus::bridgeWriteReg);
 
     // PWM
-    Bridge.provide("pwm_set_freq", bridgePwmSetFreq);
+    Bridge.provide("pwm_set_freq",  bridgePwmSetFreq);
     Bridge.provide("pwm_set_pulse", bridgePwmSetPulse);
     Bridge.provide("pwm_get_pulse", bridgePwmGetPulse);
-    Bridge.provide("pwm_enable", bridgePwmEnable);
+    Bridge.provide("pwm_enable",    bridgePwmEnable);
 
     // Servo
     Bridge.provide("servo_set_angle", bridgeServoSetAngle);
@@ -63,11 +70,11 @@ void RobotShieldBridge::registerAll()
     Bridge.provide("motor_set_power", bridgeMotorSetPower);
 
     // Power telemetry
-    Bridge.provide("get_bat_volt", bridgeGetBatVolt);
-    Bridge.provide("get_bat_percent", bridgeGetBatPercent);
-    Bridge.provide("get_bat_status", bridgeGetBatStatus);
+    Bridge.provide("get_bat_volt",        bridgeGetBatVolt);
+    Bridge.provide("get_bat_percent",     bridgeGetBatPercent);
+    Bridge.provide("get_bat_status",      bridgeGetBatStatus);
     Bridge.provide("get_arduino_current", bridgeGetArduinoCurrent);
-    Bridge.provide("get_ioref_volt", bridgeGetIorefVolt);
+    Bridge.provide("get_ioref_volt",      bridgeGetIorefVolt);
 }
 
 //------------------------ PWM wrappers ------------------------//

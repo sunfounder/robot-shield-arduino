@@ -1,3 +1,8 @@
+/**
+ * @file I2cBus.cpp
+ * @brief I2cBus singleton implementation — Wire read/write to co-processor @ 0x20.
+ */
+
 #include "I2cBus.h"
 #include <Wire.h>
 
@@ -8,6 +13,7 @@ void I2cBus::begin(uint8_t dev_addr)
 
 uint8_t I2cBus::readReg(uint8_t reg, uint8_t len)
 {
+    // Write register address, then read — standard I2C read sequence
     Wire.beginTransmission(_dev_addr);
     Wire.write(reg);
     Wire.endTransmission(false);

@@ -1,3 +1,8 @@
+/**
+ * @file Servo.cpp
+ * @brief Servo implementation — angle ↔ pulse conversion + PwmChannel delegation.
+ */
+
 #include "Servo.h"
 
 Servo::Servo(uint8_t ch)
@@ -13,7 +18,7 @@ void Servo::setAngle(int16_t angle)
 {
     int16_t pulse = angleToPulse(angle);
     _pwm.setPulse((uint16_t)pulse);
-    _pwm.enable(true);
+    _pwm.enable(true);  // pulse written before enable — avoids power-on jerk
 }
 
 int16_t Servo::getAngle()

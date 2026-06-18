@@ -1,3 +1,8 @@
+/**
+ * @file PwmChannel.cpp
+ * @brief PwmChannel implementation — I2C register I/O per channel.
+ */
+
 #include "PwmChannel.h"
 #include "reg_map.h"
 #include "I2cBus.h"
@@ -36,7 +41,7 @@ uint16_t PwmChannel::getPulse()
 {
     I2cBus& i2c = I2cBus::instance();
     uint8_t reg_l = REG_PWM0_PULSE_L + _ch * 2;
-    uint8_t low = i2c.readReg(reg_l, 1);
+    uint8_t low  = i2c.readReg(reg_l, 1);
     uint8_t high = i2c.readReg(reg_l + 1, 1);
     return ((uint16_t)high << 8) | low;
 }
@@ -45,7 +50,7 @@ uint16_t PwmChannel::getPeriod()
 {
     I2cBus& i2c = I2cBus::instance();
     uint8_t reg_l = REG_PWM0_PERIOD_L + _ch * 2;
-    uint8_t low = i2c.readReg(reg_l, 1);
+    uint8_t low  = i2c.readReg(reg_l, 1);
     uint8_t high = i2c.readReg(reg_l + 1, 1);
     return ((uint16_t)high << 8) | low;
 }

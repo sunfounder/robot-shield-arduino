@@ -1,10 +1,15 @@
+/**
+ * @file PowerMonitor.cpp
+ * @brief PowerMonitor implementation — reads co-processor battery/power registers via I2cBus.
+ */
+
 #include "PowerMonitor.h"
 #include "reg_map.h"
 #include "I2cBus.h"
 
 void PowerMonitor::begin()
 {
-    // No init needed — registers are maintained by co-processor ADC
+    // No init needed — registers are maintained by co-processor ADC.
 }
 
 uint8_t PowerMonitor::batVolt()

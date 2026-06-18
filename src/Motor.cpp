@@ -1,3 +1,13 @@
+/**
+ * @file Motor.cpp
+ * @brief DC motor H-bridge implementation — dual PWM forward/reverse/brake.
+ *
+ * H-bridge truth table:
+ *   Forward → A = duty, B = 0
+ *   Reverse → A = 0, B = duty
+ *   Brake   → A = 0, B = 0 (disabled)
+ */
+
 #include "Motor.h"
 
 Motor::Motor(const char* id, uint8_t ch_a, uint8_t ch_b)
@@ -17,18 +27,21 @@ void Motor::setPower(int16_t power)
 
     uint16_t duty;
     if (power > 0) {
+        // Forward: A = duty, B = 0
         duty = (uint16_t)map(power, 0, 100, 0, PERIOD_US);
         _pwm_a.setPulse(duty);
         _pwm_b.setPulse(0);
         _pwm_a.enable(true);
         _pwm_b.enable(true);
     } else if (power < 0) {
+        // Reverse: A = 0, B = duty
         duty = (uint16_t)map(-power, 0, 100, 0, PERIOD_US);
         _pwm_a.setPulse(0);
         _pwm_b.setPulse(duty);
         _pwm_a.enable(true);
         _pwm_b.enable(true);
     } else {
+        // Brake: both low, both disabled
         _pwm_a.setPulse(0);
         _pwm_b.setPulse(0);
         _pwm_a.enable(false);
