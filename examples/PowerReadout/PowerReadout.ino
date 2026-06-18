@@ -4,6 +4,7 @@
  */
 
 #include "RobotShield.h"
+#include "Arduino_RouterBridge.h"
 #include <Wire.h>
 
 PowerMonitor power;
@@ -13,6 +14,7 @@ void setup()
     Serial.begin(115200);
     Wire.begin();
 
+    Bridge.begin();    // hardware init (may be required for I2C clock)
     I2cBus::instance().begin();
     power.begin();
 
