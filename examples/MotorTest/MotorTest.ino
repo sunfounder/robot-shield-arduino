@@ -4,18 +4,13 @@
  */
 
 #include "RobotShield.h"
-#include "Arduino_RouterBridge.h"
-#include <Wire.h>
 
 Motor motor("M0", 4, 5);
 
 void setup()
 {
     Serial.begin(115200);
-    Wire.begin();
-
-    Bridge.begin();    // hardware init (may be required for I2C clock)
-    I2cBus::instance().begin();
+    I2cBus::instance().begin();      // Wire + I2C addr init
     motor.begin();
 
     Serial.println("=== MotorTest Ready ===");

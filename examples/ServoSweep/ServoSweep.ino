@@ -4,18 +4,13 @@
  */
 
 #include "RobotShield.h"
-#include "Arduino_RouterBridge.h"
-#include <Wire.h>
 
 Servo servo(0);
 
 void setup()
 {
     Serial.begin(115200);
-    Wire.begin();
-
-    Bridge.begin();    // hardware init (may be required for I2C clock)
-    I2cBus::instance().begin();
+    I2cBus::instance().begin();      // Wire + I2C addr init
     servo.begin();
 
     Serial.println("=== ServoSweep Ready ===");

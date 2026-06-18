@@ -13,7 +13,7 @@ public:
     static constexpr uint8_t DEFAULT_ADDR = 0x20;  ///< Default I2C slave address.
 
     /**
-     * @brief Initialise the I2C bus.
+     * @brief Initialise the I2C bus and Wire hardware.
      * @param dev_addr I2C slave address, default 0x20.
      */
     void begin(uint8_t dev_addr = DEFAULT_ADDR);

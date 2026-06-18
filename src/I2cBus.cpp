@@ -9,6 +9,7 @@
 void I2cBus::begin(uint8_t dev_addr)
 {
     _dev_addr = dev_addr;
+    Wire.begin();
 }
 
 uint8_t I2cBus::readReg(uint8_t reg, uint8_t len)
