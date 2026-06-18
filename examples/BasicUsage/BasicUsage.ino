@@ -1,3 +1,8 @@
+/**
+ * @example BasicUsage.ino
+ * @brief Minimal setup — initialises I2cBus and all modules via RobotShieldBridge.
+ */
+
 #include "RobotShield.h"
 #include "Arduino_RouterBridge.h"
 #include <Wire.h>
@@ -13,6 +18,7 @@ void setup()
     Bridge.begin();
     RobotShieldBridge::registerAll();
 
+    Serial.println("=== RobotShield Ready ===");
 }
 
 void loop()
