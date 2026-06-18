@@ -1,5 +1,5 @@
-#ifndef __REGISTER_MAP_H
-#define __REGISTER_MAP_H
+#ifndef REG_MAP_H
+#define REG_MAP_H
 
 #include <Arduino.h>
 
@@ -121,10 +121,10 @@
 #define AUTO_SHUTDOWN_VALUE  0x8A  // Auto-shutdown default
 #define SYS_CTRL_VALUE       0x00  // System control default
 
-// 0x4E20 = 20000 μs → 50 Hz
+// 0x4E20 = 20000 us → 50 Hz
 #define PWM_PERIOD_L_VALUE   0x20  // PWM period default — low byte
 #define PWM_PERIOD_H_VALUE   0x4E  // PWM period default — high byte
 #define PWM_PULSE_L_VALUE    0x00  // PWM pulse default — low byte
 #define PWM_PULSE_H_VALUE    0x00  // PWM pulse default — high byte
 
-#endif /* __REGISTER_MAP_H */
+#endif /* REG_MAP_H */

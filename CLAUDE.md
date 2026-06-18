@@ -7,32 +7,26 @@ This file provides guidance to Claude Code when working with this sketch project
 This is the **Arduino sketch** for the UNO Q AI Robot's "Robot Shield Bridge". It runs on an Arduino UNO Q (STM32U5) board and acts as a **Bridge** between the Python application layer and I2C hardware peripherals (co-processor at address `0x20`).
 
 ```
-Python (main.py)  ←→  Bridge RPC  ←→  sketch.ino  ←→  I2C  ←→  co-processor @ 0x20
+Python (main.py)  ←→  Bridge RPC  ←→  RobotShieldBridge  ←→  I2cBus  ←→  co-processor @ 0x20
 ```
 
-The sketch itself is thin — it registers Bridge function bindings and delegates all logic to module `.cpp` files. The `loop()` is empty; all work is driven by Bridge callbacks from Python.
+The entry sketch is minimal — it initialises `I2cBus`, `RobotShieldBridge`, and registers all Bridge bindings. The `loop()` is empty; all work is driven by Bridge callbacks from Python.
 
-## Architecture
+## Architecture (class-based)
 
-| Module | Files | Purpose |
+| Class | Files | Purpose |
 |---|---|---|
-| `sketch.ino` | Main entry | Bridge bindings, `setup()`, empty `loop()` |
-| `i2c` | `i2c.cpp`, `i2c.h` | Low-level I2C read/write over Arduino Wire |
-| `pwm_control` | `pwm_control.cpp`, `pwm_control.h` | PWM hardware abstraction — enable, period, pulse width |
-| `servo_control` | `servo_control.cpp`, `servo_control.h` | Servo control — angle ↔ pulse conversion, sits on PWM layer |
-| `motor_control` | `motor_control.cpp`, `motor_control.h` | DC motor control via dual PWM (H-bridge) — 4 motors |
-| `led_control` | `led_control.cpp`, `led_control.h` | Built-in LED control (active-low GPIO) |
-| `power_monitor` | `power_monitor.cpp`, `power_monitor.h` | Power telemetry — battery, current, voltage from co-processor |
-| `reg_map` | `reg_map.h` | Complete I2C register map for the co-processor |
+| `I2cBus` | `src/I2cBus.cpp`, `src/I2cBus.h` | I2C bus singleton — register read/write over Arduino Wire |
+| `PwmChannel` | `src/PwmChannel.cpp`, `src/PwmChannel.h` | Single PWM channel — enable, period, pulse width |
+| `Servo` | `src/Servo.cpp`, `src/Servo.h` | Servo angle control — angle↔pulse conversion, composes `PwmChannel` |
+| `Motor` | `src/Motor.cpp`, `src/Motor.h` | DC motor via dual PWM (H-bridge) — composes 2 `PwmChannel` |
+| `PowerMonitor` | `src/PowerMonitor.cpp`, `src/PowerMonitor.h` | Power telemetry — reads battery/current/voltage from co-processor via `I2cBus` |
+| `RobotShieldBridge` | `src/RobotShieldBridge.cpp`, `src/RobotShieldBridge.h` | Bridge registration hub — static instances of all modules, static wrapper methods for Bridge RPC |
+| `reg_map` | `src/reg_map.h` | Complete I2C register map for the co-processor |
 
 ## Bridge API (functions exposed to Python)
 
-All functions are registered in `bridge_binds()` in `sketch.ino`:
-
-### LED
-| Function | Signature | Purpose |
-|---|---|---|
-| `led_set_state` | `(bool state)` | Turn built-in LED on/off (active-low) |
+All functions are registered in `RobotShieldBridge::registerAll()`:
 
 ### I2C pass-through
 | Function | Signature | Purpose |
@@ -70,7 +64,7 @@ All functions are registered in `bridge_binds()` in `sketch.ino`:
 
 ## I2C register map
 
-See [reg_map.h](sketch/reg_map.h) for the full register definitions. Key sections:
+See [src/reg_map.h](src/reg_map.h) for the full register definitions. Key sections:
 
 | Range | Purpose |
 |---|---|
@@ -83,11 +77,14 @@ See [reg_map.h](sketch/reg_map.h) for the full register definitions. Key section
 
 ## Key design decisions
 
+### Class-based architecture
+Each hardware module is encapsulated in its own class. `I2cBus` is a singleton. `Servo` composes `PwmChannel`, `Motor` composes two `PwmChannel` instances. `RobotShieldBridge` owns static arrays of all instances (12 PWM, 12 Servo, 4 Motor) and provides static wrapper methods for Bridge registration.
+
 ### I2C pass-through pattern
 Python does NOT talk to the co-processor directly. Instead, `read_reg`/`write_reg` act as I2C pass-through over Bridge RPC. This keeps all I2C bus ownership in the Arduino sketch and avoids multi-master bus contention.
 
 ### Servo: pulse-before-enable
-`_servo_move()` writes the pulse width BEFORE enabling the channel. This prevents the servo from jerking to a stale pulse value on power-up.
+`Servo::setAngle()` writes the pulse width BEFORE enabling the channel. This prevents the servo from jerking to a stale pulse value on power-up.
 
 ### Motor: dual-PWM H-bridge
 Each motor uses two PWM channels in push-pull:
@@ -98,44 +95,51 @@ Each motor uses two PWM channels in push-pull:
 Motor PWM runs at 100Hz (10000μs period), distinct from servo 50Hz.
 
 ### Bridge calling convention
-Bridge functions receive `String` arguments (even when semantically numeric). Each function parses with `.toInt()`. Power functions receive a dummy `String` parameter they ignore — it's a Bridge framework requirement.
+Bridge functions receive `String` arguments (even when semantically numeric). Each static wrapper parses with `.toInt()`. Power functions receive a dummy `String` parameter they ignore — it's a Bridge framework requirement.
 
 ## Filesystem
 
 ```
-sketch/
-├── CLAUDE.md              ← this file
+robot_shield_bridge/
+├── CLAUDE.md                     ← this file
 ├── README.md
+├── LICENSE
+├── VERSION
+├── library.properties            ← Arduino library metadata
+├── .gitignore
 ├── .claude/
 │   └── settings.local.json
-└── sketch/
-    ├── sketch.ino          ← main entry: setup(), loop(), bridge_binds()
-    ├── sketch.yaml         ← Arduino profile: zephyr platform
-    ├── reg_map.h           ← I2C register map definitions
-    ├── i2c.cpp / .h        ← I2C read/write primitives
-    ├── pwm_control.cpp / .h ← PWM abstraction layer
-    ├── servo_control.cpp / .h ← Servo angle control
-    ├── motor_control.cpp / .h ← DC motor H-bridge control
-    ├── led_control.cpp / .h   ← Built-in LED
-    └── power_monitor.cpp / .h ← Battery/current telemetry
+├── src/                          ← library source (single source of truth)
+│   ├── RobotShield.h             ← main header (aggregates all modules)
+│   ├── reg_map.h                 ← I2C register map definitions
+│   ├── I2cBus.h / .cpp           ← I2C bus singleton
+│   ├── PwmChannel.h / .cpp       ← single PWM channel
+│   ├── Servo.h / .cpp            ← servo angle control
+│   ├── Motor.h / .cpp            ← DC motor H-bridge control
+│   ├── PowerMonitor.h / .cpp     ← battery/current telemetry
+│   └── RobotShieldBridge.h/.cpp  ← Bridge registration hub
+└── examples/
+    └── BasicUsage/
+        ├── BasicUsage.ino        ← example sketch entry point
+        └── sketch.yaml           ← Arduino profile: zephyr platform
 ```
 
 ## Rules
 
-### 1. Keep function registrations and implementations in sync
-If you add a new Bridge function in a module `.cpp`, you MUST also register it in `bridge_binds()` in [sketch.ino](sketch/sketch.ino). Likewise, if you remove one, clean up the binding.
+### 1. Bridge function names are a contract
+The 14 Bridge function names registered in `RobotShieldBridge::registerAll()` must match the Python side's `Bridge.call()` strings exactly. Do NOT rename them without coordinating both sides.
 
-### 2. Follow the three-layer pattern
-New hardware abstractions should follow the existing pattern:
-- **`.h`** — public API declarations + `_internal` helpers
-- **`.cpp`** — implementation with Doxygen doc comments
-- **`bridge_binds()`** — register in `sketch.ino`
+### 2. Class encapsulation
+Logic lives in classes, not loose functions. New hardware abstractions should follow the existing pattern:
+- **Header** — class declaration + constants
+- **Implementation** — method definitions
+- **Bridge binding** — static wrapper in `RobotShieldBridge`
 
 ### 3. I2C register changes go in reg_map.h only
-All register address definitions live in [reg_map.h](sketch/reg_map.h). Use the `REG_*` macros — never hardcode register addresses in module code.
+All register address definitions live in [src/reg_map.h](src/reg_map.h). Use the `REG_*` macros — never hardcode register addresses in class code.
 
 ### 4. Bridge API uses String parameters
-All Bridge-exposed functions take `String` arguments (Arduino Bridge framework requirement). Parse numeric values with `.toInt()`.
+All Bridge-exposed static methods take `String` arguments (Arduino Bridge framework requirement). Parse numeric values with `.toInt()`.
 
 ### 5. Clamp input values
 Follow the existing pattern: servo angles clamped to ±90°, motor power to ±100, PWM pulse to 0–65535. Bad input should be silently clamped, never crash.
