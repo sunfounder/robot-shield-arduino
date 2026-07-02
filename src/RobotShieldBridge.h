@@ -3,7 +3,7 @@
  * @brief Bridge RPC registration hub.
  *
  * Maintains static arrays of all module instances (12 PWM, 12 Servo, 4 Motor,
- * 1 PowerMonitor). Static wrapper methods parse Bridge String arguments and
+ * 1 Power). Static wrapper methods parse Bridge String arguments and
  * delegate to the appropriate instance.
  *
  * All 14 Bridge function names are a contract with the Python side — do NOT
@@ -18,7 +18,7 @@
 class RobotShieldBridge {
 public:
     /**
-     * @brief Initialise all module instances (PWM, Servo, Motor, PowerMonitor).
+     * @brief Initialise all module instances (PWM, Servo, Motor, Power).
      */
     static void begin();
 
@@ -84,7 +84,7 @@ public:
      */
     static void bridgeMotorSetPower(String motor, String power_str);
 
-    // ---- PowerMonitor Bridge wrappers -----------------------------------
+    // ---- Power Bridge wrappers -----------------------------------
 
     /** @brief [Bridge] Read battery voltage. @param dummy Unused (Bridge requirement). @return int Voltage in mV. */
     static int bridgeGetBatVolt(String dummy);

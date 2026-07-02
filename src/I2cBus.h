@@ -37,7 +37,7 @@ public:
      * @brief Get the global I2cBus singleton instance.
      * @return I2cBus& Reference to the singleton.
      */
-    static I2cBus& instance();
+    static I2cBus& i2c();
 
     // Bridge RPC wrappers -------------------------------------------------
 

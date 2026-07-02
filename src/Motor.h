@@ -2,7 +2,7 @@
  * @file Motor.h
  * @brief DC motor control via dual-PWM H-bridge.
  *
- * Composes two PwmChannel instances for H-bridge drive:
+ * Composes two Pwm instances for H-bridge drive:
  *   Forward → A = duty, B = 0
  *   Reverse → A = 0, B = duty
  *   Brake   → A = 0, B = 0 (disabled)
@@ -15,7 +15,7 @@
 #define MOTOR_H
 
 #include <Arduino.h>
-#include "PwmChannel.h"
+#include "Pwm.h"
 
 class Motor {
 public:
@@ -49,8 +49,8 @@ public:
 
 private:
     const char* _id;     ///< Motor identifier ("M0"–"M3").
-    PwmChannel  _pwm_a;  ///< A-phase PWM channel.
-    PwmChannel  _pwm_b;  ///< B-phase PWM channel.
+    Pwm  _pwm_a;  ///< A-phase PWM channel.
+    Pwm  _pwm_b;  ///< B-phase PWM channel.
 };
 
 #endif // MOTOR_H

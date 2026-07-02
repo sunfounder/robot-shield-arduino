@@ -6,19 +6,19 @@
  */
 
 #include "RobotShieldBridge.h"
-#include "PwmChannel.h"
+#include "Pwm.h"
 #include "Servo.h"
 #include "Motor.h"
-#include "PowerMonitor.h"
+#include "Power.h"
 #include "I2cBus.h"
 #include "Arduino_RouterBridge.h"
 
 // Static module instances — one per channel/motor
 
-static PwmChannel _pwms[12] = {
-    PwmChannel(0), PwmChannel(1), PwmChannel(2), PwmChannel(3),
-    PwmChannel(4), PwmChannel(5), PwmChannel(6), PwmChannel(7),
-    PwmChannel(8), PwmChannel(9), PwmChannel(10), PwmChannel(11)
+static Pwm _pwms[12] = {
+    Pwm(0), Pwm(1), Pwm(2), Pwm(3),
+    Pwm(4), Pwm(5), Pwm(6), Pwm(7),
+    Pwm(8), Pwm(9), Pwm(10), Pwm(11)
 };
 
 static Servo _servos[12] = {
@@ -34,7 +34,7 @@ static Motor _motors[4] = {
     Motor("M3", 10, 11)
 };
 
-static PowerMonitor _power;
+static Power _power;
 
 //------------------------ Lifecycle ------------------------//
 
@@ -94,7 +94,7 @@ void RobotShieldBridge::bridgePwmSetPulse(String ch_str, String pulse_str)
     if (pulse > 65535) pulse = 65535;
     if (ch < 12) {
         _pwms[ch].setPulse((uint16_t)pulse);
-        _pwms[ch].enable(true);
+        _pwms[ch].setEnable(true);
     }
 }
 
@@ -109,7 +109,7 @@ int RobotShieldBridge::bridgePwmEnable(String ch_str, String en_str)
 {
     uint8_t ch = (uint8_t)ch_str.toInt();
     uint8_t en = (uint8_t)en_str.toInt();
-    if (ch < 12) _pwms[ch].enable(en ? true : false);
+    if (ch < 12) _pwms[ch].setEnable(en ? true : false);
     return 0;
 }
 
@@ -140,34 +140,34 @@ void RobotShieldBridge::bridgeMotorSetPower(String motor, String power_str)
     else if (motor == "M3") _motors[3].setPower(power);
 }
 
-//------------------------ PowerMonitor wrappers ------------------------//
+//------------------------ Power wrappers ------------------------//
 
 int RobotShieldBridge::bridgeGetBatVolt(String dummy)
 {
     (void)dummy;
-    return (int)_power.batVolt();
+    return (int)_power.getVoltage();
 }
 
 int RobotShieldBridge::bridgeGetBatPercent(String dummy)
 {
     (void)dummy;
-    return (int)_power.batPercent();
+    return (int)_power.getPercent();
 }
 
 int RobotShieldBridge::bridgeGetBatStatus(String dummy)
 {
     (void)dummy;
-    return (int)_power.batStatus();
+    return (int)_power.getStatus();
 }
 
 int RobotShieldBridge::bridgeGetArduinoCurrent(String dummy)
 {
     (void)dummy;
-    return (int)_power.arduinoCurrent();
+    return (int)_power.getCurrent();
 }
 
 int RobotShieldBridge::bridgeGetIorefVolt(String dummy)
 {
     (void)dummy;
-    return (int)_power.iorefVolt();
+    return (int)_power.getIoref();
 }

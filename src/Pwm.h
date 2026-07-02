@@ -1,5 +1,5 @@
 /**
- * @file PwmChannel.h
+ * @file Pwm.h
  * @brief Single PWM channel control — frequency, pulse width, and enable.
  *
  * Register layout (per channel ch = 0–11):
@@ -10,18 +10,18 @@
  * Default period: 20000 us (50 Hz), suitable for standard servos.
  */
 
-#ifndef PWM_CHANNEL_H
-#define PWM_CHANNEL_H
+#ifndef PWM_H
+#define PWM_H
 
 #include <Arduino.h>
 
-class PwmChannel {
+class Pwm {
 public:
     /**
      * @brief Construct a PWM channel.
      * @param ch Channel number (0–11).
      */
-    explicit PwmChannel(uint8_t ch);
+    explicit Pwm(uint8_t ch);
 
     /**
      * @brief Initialise the channel with default period (20000 us / 50 Hz).
@@ -56,7 +56,7 @@ public:
      * @brief Enable or disable the PWM channel.
      * @param on true to enable, false to disable.
      */
-    void enable(bool on);
+    void setEnable(bool on);
 
     /**
      * @brief Get the channel number.
@@ -68,4 +68,4 @@ private:
     uint8_t _ch;  ///< PWM channel number (0–11).
 };
 
-#endif // PWM_CHANNEL_H
+#endif // PWM_H

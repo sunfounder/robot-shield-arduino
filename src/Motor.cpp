@@ -31,20 +31,20 @@ void Motor::setPower(int16_t power)
         duty = (uint16_t)map(power, 0, 100, 0, PERIOD_US);
         _pwm_a.setPulse(duty);
         _pwm_b.setPulse(0);
-        _pwm_a.enable(true);
-        _pwm_b.enable(true);
+        _pwm_a.setEnable(true);
+        _pwm_b.setEnable(true);
     } else if (power < 0) {
         // Reverse: A = 0, B = duty
         duty = (uint16_t)map(-power, 0, 100, 0, PERIOD_US);
         _pwm_a.setPulse(0);
         _pwm_b.setPulse(duty);
-        _pwm_a.enable(true);
-        _pwm_b.enable(true);
+        _pwm_a.setEnable(true);
+        _pwm_b.setEnable(true);
     } else {
         // Brake: both low, both disabled
         _pwm_a.setPulse(0);
         _pwm_b.setPulse(0);
-        _pwm_a.enable(false);
-        _pwm_b.enable(false);
+        _pwm_a.setEnable(false);
+        _pwm_b.setEnable(false);
     }
 }

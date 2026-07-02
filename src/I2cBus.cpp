@@ -34,7 +34,7 @@ void I2cBus::writeReg(uint8_t reg, uint8_t data)
     Wire.endTransmission();
 }
 
-I2cBus& I2cBus::instance()
+I2cBus& I2cBus::i2c()
 {
     static I2cBus bus;
     return bus;
@@ -43,11 +43,11 @@ I2cBus& I2cBus::instance()
 int I2cBus::bridgeReadReg(String addr_str)
 {
     int addr = addr_str.toInt();
-    return instance().readReg((uint8_t)addr, 1);
+    return i2c().readReg((uint8_t)addr, 1);
 }
 
 int I2cBus::bridgeWriteReg(int addr, int value)
 {
-    instance().writeReg((uint8_t)addr, (uint8_t)value);
+    i2c().writeReg((uint8_t)addr, (uint8_t)value);
     return 0;
 }

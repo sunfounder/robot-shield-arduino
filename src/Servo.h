@@ -1,6 +1,6 @@
 /**
  * @file Servo.h
- * @brief Servo angle control — composes PwmChannel for angle ↔ pulse mapping.
+ * @brief Servo angle control — composes Pwm for angle ↔ pulse mapping.
  *
  * Linear mapping: -90° → 500 us, 0° → 1500 us, +90° → 2500 us.
  * Pulse is written before enabling the channel to prevent jerk on power-up.
@@ -10,7 +10,7 @@
 #define SERVO_H
 
 #include <Arduino.h>
-#include "PwmChannel.h"
+#include "Pwm.h"
 
 class Servo {
 public:
@@ -45,7 +45,7 @@ public:
     int16_t getAngle();
 
 private:
-    PwmChannel _pwm;  ///< Underlying PWM channel.
+    Pwm _pwm;  ///< Underlying PWM channel.
 
     /**
      * @brief Convert angle to pulse width.
