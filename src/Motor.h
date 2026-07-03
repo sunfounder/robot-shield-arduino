@@ -19,7 +19,7 @@
 
 class Motor {
 public:
-    static constexpr uint16_t PERIOD_US = 10000;  ///< PWM period (us), 10000 us = 100 Hz.
+    static constexpr uint16_t PERIOD_US = 1000;   ///< PWM period (us), 1000 us = 1 kHz.
 
     /**
      * @brief Construct a Motor with dual PWM channels.
