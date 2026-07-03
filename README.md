@@ -1,130 +1,130 @@
 # Robot Shield Bridge
 
-这个项目是 UNO Q AI Robot 的 Arduino 固件（sketch），运行在 Arduino UNO Q（STM32U5）开发板上。它为 Robot Shield 提供 **Bridge（桥接）** 功能，作为 Python 应用层与 I2C 硬件外设之间的通信桥梁。
+This project is the Arduino firmware (sketch) for the UNO Q AI Robot, running on the Arduino UNO Q (STM32U5) board. It provides **Bridge** functionality for the Robot Shield, serving as the communication bridge between the Python application layer and I2C hardware peripherals.
 
-## 架构概述
+## Architecture Overview
 
 ```
 Python (main.py)  ←→  Bridge RPC  ←→  RobotShieldBridge  ←→  I2cBus  ←→  robot shield (i2c address:0x20)
 ```
 
-- **Python 端**：通过 Arduino Bridge RPC 调用本库暴露的函数
-- **RobotShieldBridge**：静态类，负责注册所有 Bridge 函数绑定，将调用委托到对应实例
-- **I2cBus**：I2C 总线单例，封装 Wire 操作
-- **I2C robot shield**：地址 `0x20`，负责 PWM 生成（PCA9685）、ADC 采样（电池/电流/电压）等底层硬件操作
+- **Python side**: Calls functions exposed by this library via Arduino Bridge RPC
+- **RobotShieldBridge**: Static class responsible for registering all Bridge function bindings and delegating calls to the corresponding instances
+- **I2cBus**: I2C bus singleton, encapsulating Wire operations
+- **I2C robot shield**: Address `0x20`, responsible for low-level hardware operations such as PWM generation (PCA9685) and ADC sampling (battery/current/voltage)
 
-## 类设计
+## Class Design
 
-| 类 | 文件 | 说明 |
+| Class | File | Description |
 |---|---|---|
-| `I2cBus` | `I2cBus.h/cpp` | I2C 总线单例，封装寄存器读写 |
-| `PwmChannel` | `PwmChannel.h/cpp` | 单路 PWM 通道（频率、脉宽、使能） |
-| `Servo` | `Servo.h/cpp` | 舵机角度控制（组合 PwmChannel），-90°~90° ↔ 500~2500μs |
-| `Motor` | `Motor.h/cpp` | DC 电机 H 桥控制（组合 2 个 PwmChannel），-100~100 功率 |
-| `PowerMonitor` | `PowerMonitor.h/cpp` | 电源遥测（电池电压/电量/状态/电流/IOREF） |
-| `RobotShieldBridge` | `RobotShieldBridge.h/cpp` | Bridge 注册中心，维护静态实例数组 |
+| `I2cBus` | `I2cBus.h/cpp` | I2C bus singleton, encapsulates register read/write |
+| `PwmChannel` | `PwmChannel.h/cpp` | Single PWM channel (frequency, pulse width, enable) |
+| `Servo` | `Servo.h/cpp` | Servo angle control (composes PwmChannel), -90°~90° ↔ 500~2500μs |
+| `Motor` | `Motor.h/cpp` | DC motor H-bridge control (composes 2 PwmChannels), -100~100 power |
+| `PowerMonitor` | `PowerMonitor.h/cpp` | Power telemetry (battery voltage/percentage/status/current/IOREF) |
+| `RobotShieldBridge` | `RobotShieldBridge.h/cpp` | Bridge registration hub, maintains static instance arrays |
 
-## 主要功能
+## Key Features
 
-### 1. I2C 寄存器透传
+### 1. I2C Register Pass-through
 
-`read_reg` / `write_reg` 将 I2C 总线操作封装为 Bridge 函数，Python 通过这两个函数间接读写 robot shield 的全部寄存器，避免了 I2C 多主竞争问题。
+`read_reg` / `write_reg` encapsulate I2C bus operations as Bridge functions. Python uses these two functions to indirectly read and write all robot shield registers, avoiding I2C multi-master bus contention.
 
-### 2. PWM 控制（12 通道）
+### 2. PWM Control (12 Channels)
 
-支持 12 路 PWM 通道（0–11），提供频率、脉宽、使能的完整控制。默认周期 20000μs（50Hz），适用于标准舵机。
+Supports 12 PWM channels (0–11) with full control over frequency, pulse width, and enable. Default period is 20000μs (50Hz), suitable for standard servos.
 
-- `pwm_set_freq` — 设置 PWM 频率
-- `pwm_set_pulse` — 设置脉宽（微秒），自动使能通道
-- `pwm_get_pulse` — 读取当前脉宽
-- `pwm_enable` — 使能/关闭通道
+- `pwm_set_freq` — Set PWM frequency
+- `pwm_set_pulse` — Set pulse width (microseconds), auto-enables the channel
+- `pwm_get_pulse` — Read current pulse width
+- `pwm_enable` — Enable/disable channel
 
-### 3. 舵机控制
+### 3. Servo Control
 
-在 PWM 层之上封装了角度控制。角度范围 **-90° ~ +90°**，自动映射到脉宽 **500 ~ 2500μs**（线性映射）。
+Angle control built on top of the PWM layer. Angle range **-90° ~ +90°**, automatically mapped to pulse width **500 ~ 2500μs** (linear mapping).
 
-关键设计：写入脉宽后再使能通道，防止舵机上电时因读到旧脉宽值而猛跳。
+Key design: pulse width is written before enabling the channel, preventing the servo from jerking to a stale pulse value on power-up.
 
-- `servo_set_angle` — 设置舵机角度
-- `servo_get_angle` — 读取当前角度
+- `servo_set_angle` — Set servo angle
+- `servo_get_angle` — Read current angle
 
-### 4. 直流电机控制（H 桥）
+### 4. DC Motor Control (H-Bridge)
 
-4 路直流电机（M0–M3），每路使用两个 PWM 通道组成 H 桥驱动：
+4 DC motors (M0–M3), each using two PWM channels to form an H-bridge drive:
 
-| 状态 | 通道 A | 通道 B |
-|------|--------|--------|
-| 正转 | duty | 0 |
-| 反转 | 0 | duty |
-| 刹车 | 0 | 0（关闭） |
+| State | Channel A | Channel B |
+|-------|-----------|------------|
+| Forward | duty | 0 |
+| Reverse | 0 | duty |
+| Brake | 0 | 0 (disabled) |
 
-电机 PWM 频率固定为 **100Hz**（10000μs 周期），与舵机的 50Hz 独立。
+Motor PWM frequency is fixed at **100Hz** (10000μs period), independent of the servo 50Hz.
 
-通道映射：M0→PWM4/5, M1→PWM6/7, M2→PWM8/9, M3→PWM10/11
+Channel mapping: M0→PWM4/5, M1→PWM6/7, M2→PWM8/9, M3→PWM10/11
 
-### 5. 电源监控
+### 5. Power Monitoring
 
-从 robot shield 寄存器读取电池状态：
+Reads battery status from robot shield registers:
 
-- `get_bat_volt` — 电池电压（mV）
-- `get_bat_percent` — 电池电量百分比（0–100）
-- `get_bat_status` — 电池状态（0=正常, 1=低压, 2=过压, 3=过流）
-- `get_arduino_current` — Arduino 板电流（mA）
-- `get_ioref_volt` — IOREF 电压（mV）
+- `get_bat_volt` — Battery voltage (mV)
+- `get_bat_percent` — Battery charge percentage (0–100)
+- `get_bat_status` — Battery status (0=Normal, 1=Low Voltage, 2=Over Voltage, 3=Over Current)
+- `get_arduino_current` — Arduino board current (mA)
+- `get_ioref_volt` — IOREF voltage (mV)
 
-### 6. 系统控制
+### 6. System Control
 
-robot shield 系统寄存器支持：
-- 电源开关控制
-- **PWR 按键信号** — 单击 / 双击进入零位 / 双击退出零位
-- **USR 按键信号** — PTT（Push-to-Talk）长按开始录音 / 松开停止录音
+Robot shield system registers support:
+- Power switch control
+- **PWR button signal** — Single click / Double-click enter zero / Double-click exit zero
+- **USR button signal** — PTT (Push-to-Talk) long press to start recording / release to stop recording
 
-## I2C 寄存器映射
+## I2C Register Map
 
-参见 [reg_map.h](src/reg_map.h) 获取完整定义。
+See [reg_map.h](src/reg_map.h) for the complete definitions.
 
-| 地址范围 | 用途 |
-|----------|------|
-| `0x00–0x0C` | 系统寄存器（芯片ID、I2C地址、固件版本、关机、按键信号） |
-| `0x20–0x23` | 电池/电源遥测（电压、电量、状态、电流） |
-| `0x25–0x2A` | 原始 ADC 值（16 位，小端序） |
-| `0x40–0x4B` | PWM 通道控制（每通道 1 字节，使能/关闭） |
-| `0x50–0x67` | PWM 周期（每通道 2 字节 16 位，小端序）— 默认 20000μs / 50Hz |
-| `0x70–0x87` | PWM 脉宽（每通道 2 字节 16 位，小端序）— 默认 500–2500μs |
+| Address Range | Purpose |
+|---------------|---------|
+| `0x00–0x0C` | System registers (chip ID, I2C address, firmware version, shutdown, button signals) |
+| `0x20–0x23` | Battery/power telemetry (voltage, percentage, status, current) |
+| `0x25–0x2A` | Raw ADC values (16-bit, little-endian) |
+| `0x40–0x4B` | PWM channel control (1 byte per channel, enable/disable) |
+| `0x50–0x67` | PWM period (2 bytes per channel, 16-bit, little-endian) — default 20000μs / 50Hz |
+| `0x70–0x87` | PWM pulse width (2 bytes per channel, 16-bit, little-endian) — default 500–2500μs |
 
-## 项目文件结构
+## Project File Structure
 
 ```
 robot_shield_bridge/
-├── CLAUDE.md                    ← Claude Code 开发指引
+├── CLAUDE.md                    ← Claude Code development guide
 ├── README.md                    ← readme
 ├── LICENSE
 ├── VERSION
-├── library.properties           ← Arduino 库元数据
+├── library.properties           ← Arduino library metadata
 ├── .gitignore
-├── src/                         ← 库源码
-│   ├── RobotShield.h            ← 主头文件
-│   ├── reg_map.h                ← I2C 寄存器映射宏定义
-│   ├── I2cBus.h / .cpp          ← I2C 总线单例类
-│   ├── PwmChannel.h / .cpp      ← 单路 PWM 类
-│   ├── Servo.h / .cpp           ← 舵机类
-│   ├── Motor.h / .cpp           ← 电机类（双 PWM H 桥）
-│   ├── PowerMonitor.h / .cpp    ← 电源遥测类
-│   └── RobotShieldBridge.h/.cpp ← Bridge 注册中心
+├── src/                         ← Library source code
+│   ├── RobotShield.h            ← Main header file
+│   ├── reg_map.h                ← I2C register map macro definitions
+│   ├── I2cBus.h / .cpp          ← I2C bus singleton class
+│   ├── PwmChannel.h / .cpp      ← Single PWM channel class
+│   ├── Servo.h / .cpp           ← Servo class
+│   ├── Motor.h / .cpp           ← Motor class (dual PWM H-bridge)
+│   ├── PowerMonitor.h / .cpp    ← Power telemetry class
+│   └── RobotShieldBridge.h/.cpp ← Bridge registration hub
 └── examples/
     └── BasicUsage/
-        ├── BasicUsage.ino       ← 示例 sketch
-        └── sketch.yaml          ← Arduino 配置文件（zephyr 平台）
+        ├── BasicUsage.ino       ← Example sketch
+        └── sketch.yaml          ← Arduino configuration file (zephyr platform)
 ```
 
-## 部署方式
+## Deployment
 
-本 sketch 作为 UNO Q AI Robot 整体项目的一部分部署。
+This sketch is deployed as part of the UNO Q AI Robot project.
 
 ```bash
-# 完整重启（编译 sketch + 烧录 + 重建容器）
+# Full restart (compile sketch + flash + rebuild containers)
 ssh arduino@192.168.100.174 "cd ~/ArduinoApps/{Your Project} && arduino-app-cli app restart ."
 
-# 仅重启 Python 容器（sketch 未改动时）
+# Restart Python container only (when sketch is unchanged)
 ssh arduino@192.168.100.174 "docker restart {Your Project}-main-1"
 ```
