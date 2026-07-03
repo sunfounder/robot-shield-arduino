@@ -10,7 +10,7 @@ Motor motor("M0", 4, 5);
 void setup()
 {
     Serial.begin(115200);
-    I2cBus::i2c().begin();      // Wire + I2C addr init
+    I2cBus::i2c().begin();
     motor.begin();
 
     Serial.println("=== MotorTest Ready ===");

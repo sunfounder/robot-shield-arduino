@@ -10,7 +10,7 @@ Power power;
 void setup()
 {
     Serial.begin(115200);
-    I2cBus::i2c().begin();      // Wire + I2C addr init
+    I2cBus::i2c().begin();
     power.begin();
 
     Serial.println("=== PowerReadout Ready ===");
