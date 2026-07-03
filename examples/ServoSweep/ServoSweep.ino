@@ -10,7 +10,7 @@ Servo servo(0);
 void setup()
 {
     Serial.begin(115200);
-    I2cBus::instance().begin();      // Wire + I2C addr init
+    I2cBus::i2c().begin();      // Wire + I2C addr init
     servo.begin();
 
     Serial.println("=== ServoSweep Ready ===");

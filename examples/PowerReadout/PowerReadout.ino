@@ -5,12 +5,12 @@
 
 #include "RobotShield.h"
 
-PowerMonitor power;
+Power power;
 
 void setup()
 {
     Serial.begin(115200);
-    I2cBus::instance().begin();      // Wire + I2C addr init
+    I2cBus::i2c().begin();      // Wire + I2C addr init
     power.begin();
 
     Serial.println("=== PowerReadout Ready ===");
@@ -19,15 +19,15 @@ void setup()
 void loop()
 {
     Serial.print("Battery: ");
-    Serial.print(power.batVolt());
+    Serial.print(power.getVoltage());
     Serial.print(" mV  ");
-    Serial.print(power.batPercent());
+    Serial.print(power.getPercent());
     Serial.print("%  status=");
-    Serial.print(power.batStatus());
+    Serial.print(power.getStatus());
     Serial.print("  current=");
-    Serial.print(power.arduinoCurrent());
+    Serial.print(power.getCurrent());
     Serial.print(" mA  IOREF=");
-    Serial.print(power.iorefVolt());
+    Serial.print(power.getIoref());
     Serial.println(" mV");
 
     delay(2000);
