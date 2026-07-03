@@ -1,4 +1,4 @@
-# Robot Shield Bridge
+# Robot Shield
 
 This project is the Arduino firmware (sketch) for the UNO Q AI Robot, running on the Arduino UNO Q (STM32U5) board. It provides **Bridge** functionality for the Robot Shield, serving as the communication bridge between the Python application layer and I2C hardware peripherals.
 
