@@ -1,19 +1,5 @@
-/**
- * @file RobotShieldBridge.cpp
- * @brief Bridge registration hub — static instance arrays + Bridge.provide() bindings.
- *
- * All Bridge function names must match the Python side's Bridge.call() strings exactly.
- */
-
-#include "RobotShieldBridge.h"
-#include "Pwm.h"
-#include "Servo.h"
-#include "Motor.h"
-#include "Power.h"
-#include "I2cBus.h"
+#include "RobotShield.h"
 #include "Arduino_RouterBridge.h"
-
-// Static module instances — one per channel/motor
 
 static Pwm _pwms[12] = {
     Pwm(0), Pwm(1), Pwm(2), Pwm(3),
@@ -36,9 +22,7 @@ static Motor _motors[4] = {
 
 static Power _power;
 
-//------------------------ Lifecycle ------------------------//
-
-void RobotShieldBridge::begin()
+void RobotShield::begin()
 {
     for (uint8_t i = 0; i < 12; i++) {
         _pwms[i].begin();
@@ -50,26 +34,21 @@ void RobotShieldBridge::begin()
     _power.begin();
 }
 
-void RobotShieldBridge::registerAll()
+void RobotShield::registerAll()
 {
-    // I2C pass-through
     Bridge.provide("read_reg", I2cBus::bridgeReadReg);
     Bridge.provide("write_reg", I2cBus::bridgeWriteReg);
 
-    // PWM
     Bridge.provide("pwm_set_freq",  bridgePwmSetFreq);
     Bridge.provide("pwm_set_pulse", bridgePwmSetPulse);
     Bridge.provide("pwm_get_pulse", bridgePwmGetPulse);
     Bridge.provide("pwm_enable",    bridgePwmEnable);
 
-    // Servo
     Bridge.provide("servo_set_angle", bridgeServoSetAngle);
     Bridge.provide("servo_get_angle", bridgeServoGetAngle);
 
-    // Motor
     Bridge.provide("motor_set_power", bridgeMotorSetPower);
 
-    // Power telemetry
     Bridge.provide("get_bat_volt",        bridgeGetBatVolt);
     Bridge.provide("get_bat_percent",     bridgeGetBatPercent);
     Bridge.provide("get_bat_status",      bridgeGetBatStatus);
@@ -79,14 +58,14 @@ void RobotShieldBridge::registerAll()
 
 //------------------------ PWM wrappers ------------------------//
 
-void RobotShieldBridge::bridgePwmSetFreq(String ch_str, String hz_str)
+void RobotShield::bridgePwmSetFreq(String ch_str, String hz_str)
 {
     uint8_t ch = (uint8_t)ch_str.toInt();
     uint16_t hz = (uint16_t)hz_str.toInt();
     if (ch < 12) _pwms[ch].setFreq(hz);
 }
 
-void RobotShieldBridge::bridgePwmSetPulse(String ch_str, String pulse_str)
+void RobotShield::bridgePwmSetPulse(String ch_str, String pulse_str)
 {
     uint8_t ch = (uint8_t)ch_str.toInt();
     int pulse = pulse_str.toInt();
@@ -98,14 +77,14 @@ void RobotShieldBridge::bridgePwmSetPulse(String ch_str, String pulse_str)
     }
 }
 
-int RobotShieldBridge::bridgePwmGetPulse(String ch_str)
+int RobotShield::bridgePwmGetPulse(String ch_str)
 {
     uint8_t ch = (uint8_t)ch_str.toInt();
     if (ch < 12) return (int)_pwms[ch].getPulse();
     return 0;
 }
 
-int RobotShieldBridge::bridgePwmEnable(String ch_str, String en_str)
+int RobotShield::bridgePwmEnable(String ch_str, String en_str)
 {
     uint8_t ch = (uint8_t)ch_str.toInt();
     uint8_t en = (uint8_t)en_str.toInt();
@@ -115,14 +94,14 @@ int RobotShieldBridge::bridgePwmEnable(String ch_str, String en_str)
 
 //------------------------ Servo wrappers ------------------------//
 
-void RobotShieldBridge::bridgeServoSetAngle(String ch_str, String angle_str)
+void RobotShield::bridgeServoSetAngle(String ch_str, String angle_str)
 {
     uint8_t ch = (uint8_t)ch_str.toInt();
     int16_t angle = (int16_t)angle_str.toInt();
     if (ch < 12) _servos[ch].setAngle(angle);
 }
 
-int RobotShieldBridge::bridgeServoGetAngle(String ch_str)
+int RobotShield::bridgeServoGetAngle(String ch_str)
 {
     uint8_t ch = (uint8_t)ch_str.toInt();
     if (ch < 12) return (int)_servos[ch].getAngle();
@@ -131,7 +110,7 @@ int RobotShieldBridge::bridgeServoGetAngle(String ch_str)
 
 //------------------------ Motor wrappers ------------------------//
 
-void RobotShieldBridge::bridgeMotorSetPower(String motor, String power_str)
+void RobotShield::bridgeMotorSetPower(String motor, String power_str)
 {
     int16_t power = (int16_t)power_str.toInt();
     if (motor == "M0")      _motors[0].setPower(power);
@@ -142,31 +121,31 @@ void RobotShieldBridge::bridgeMotorSetPower(String motor, String power_str)
 
 //------------------------ Power wrappers ------------------------//
 
-int RobotShieldBridge::bridgeGetBatVolt(String dummy)
+int RobotShield::bridgeGetBatVolt(String dummy)
 {
     (void)dummy;
     return (int)_power.getVoltage();
 }
 
-int RobotShieldBridge::bridgeGetBatPercent(String dummy)
+int RobotShield::bridgeGetBatPercent(String dummy)
 {
     (void)dummy;
     return (int)_power.getPercent();
 }
 
-int RobotShieldBridge::bridgeGetBatStatus(String dummy)
+int RobotShield::bridgeGetBatStatus(String dummy)
 {
     (void)dummy;
     return (int)_power.getStatus();
 }
 
-int RobotShieldBridge::bridgeGetArduinoCurrent(String dummy)
+int RobotShield::bridgeGetArduinoCurrent(String dummy)
 {
     (void)dummy;
     return (int)_power.getCurrent();
 }
 
-int RobotShieldBridge::bridgeGetIorefVolt(String dummy)
+int RobotShield::bridgeGetIorefVolt(String dummy)
 {
     (void)dummy;
     return (int)_power.getIoref();
