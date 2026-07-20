@@ -1,5 +1,6 @@
 #include "RobotShield.h"
 #include "Arduino_RouterBridge.h"
+#include "reg_map.h"
 
 static Pwm _pwms[12] = {
     Pwm(0), Pwm(1), Pwm(2), Pwm(3),
@@ -54,6 +55,8 @@ void RobotShield::registerAll()
     Bridge.provide("get_bat_status",      bridgeGetBatStatus);
     Bridge.provide("get_arduino_current", bridgeGetArduinoCurrent);
     Bridge.provide("get_ioref_volt",      bridgeGetIorefVolt);
+
+    Bridge.provide("usr_btn_read", bridgeUsrBtnRead);
 }
 
 //------------------------ PWM wrappers ------------------------//
@@ -149,4 +152,12 @@ int RobotShield::bridgeGetIorefVolt(String dummy)
 {
     (void)dummy;
     return (int)_power.getIoref();
+}
+
+//------------------------ Button wrapper ------------------------//
+
+int RobotShield::bridgeUsrBtnRead(String dummy)
+{
+    (void)dummy;
+    return (int)I2cBus::i2c().readReg(REG_USR_KEY_SIGNAL, 1);
 }

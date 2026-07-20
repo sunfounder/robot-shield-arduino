@@ -31,6 +31,9 @@ public:
     static int bridgeGetBatStatus(String dummy);
     static int bridgeGetArduinoCurrent(String dummy);
     static int bridgeGetIorefVolt(String dummy);
+
+    // User Button
+    static int bridgeUsrBtnRead(String dummy);
 };
 
 #endif
