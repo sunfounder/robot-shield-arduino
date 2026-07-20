@@ -122,9 +122,10 @@ robot_shield_bridge/
 │   ├── Power.h / .cpp            ← battery/voltage telemetry
 │   └── RobotShield.h / .cpp      ← Bridge registration hub
 └── examples/
-    └── BasicUsage/
-        ├── BasicUsage.ino        ← example sketch entry point
-        └── sketch.yaml           ← Arduino profile: zephyr platform
+    ├── ServoSweep/
+    ├── MotorTest/
+    ├── PowerReadout/
+    └── UserButton/
 ```
 
 ## Rules

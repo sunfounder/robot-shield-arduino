@@ -132,6 +132,7 @@ All functions are registered in `RobotShield::registerAll()`. Parameters are `St
 | [ServoSweep](examples/ServoSweep/ServoSweep.ino) | Sweep servo on channel 0 back and forth between -45° and 45° |
 | [MotorTest](examples/MotorTest/MotorTest.ino) | M0 motor: forward 3s → brake 1s → reverse 3s → brake |
 | [PowerReadout](examples/PowerReadout/PowerReadout.ino) | Print battery voltage, percentage, status, and IOREF via Serial every 2s |
+| [UserButton](examples/UserButton/UserButton.ino) | Poll USR button state and print press/release events via Serial every 200ms |
 
 ## Project Structure
 
