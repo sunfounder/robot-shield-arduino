@@ -53,7 +53,7 @@ void RobotShield::registerAll()
     Bridge.provide("get_bat_volt",        bridgeGetBatVolt);
     Bridge.provide("get_bat_percent",     bridgeGetBatPercent);
     Bridge.provide("get_bat_status",      bridgeGetBatStatus);
-    Bridge.provide("get_arduino_current", bridgeGetArduinoCurrent);
+    // Bridge.provide("get_arduino_current", bridgeGetArduinoCurrent);  // deprecated
     Bridge.provide("get_ioref_volt",      bridgeGetIorefVolt);
 
     Bridge.provide("usr_btn_read", bridgeUsrBtnRead);
@@ -142,11 +142,11 @@ int RobotShield::bridgeGetBatStatus(String dummy)
     return (int)_power.getStatus();
 }
 
-int RobotShield::bridgeGetArduinoCurrent(String dummy)
-{
-    (void)dummy;
-    return (int)_power.getCurrent();
-}
+// int RobotShield::bridgeGetArduinoCurrent(String dummy)
+// {
+//     (void)dummy;
+//     return (int)_power.getCurrent();
+// }
 
 int RobotShield::bridgeGetIorefVolt(String dummy)
 {

@@ -29,7 +29,7 @@ public:
     static int bridgeGetBatVolt(String dummy);
     static int bridgeGetBatPercent(String dummy);
     static int bridgeGetBatStatus(String dummy);
-    static int bridgeGetArduinoCurrent(String dummy);
+    // static int bridgeGetArduinoCurrent(String dummy);  // deprecated
     static int bridgeGetIorefVolt(String dummy);
 
     // User Button

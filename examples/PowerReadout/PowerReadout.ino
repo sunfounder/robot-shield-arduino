@@ -24,9 +24,10 @@ void loop()
     Serial.print(power.getPercent());
     Serial.print("%  status=");
     Serial.print(power.getStatus());
-    Serial.print("  current=");
-    Serial.print(power.getCurrent());
-    Serial.print(" mA  IOREF=");
+    // Serial.print("  current=");
+    // Serial.print(power.getCurrent());
+    // Serial.print(" mA");
+    Serial.print("  IOREF=");
     Serial.print(power.getIoref());
     Serial.println(" mV");
 

@@ -27,10 +27,10 @@ uint8_t Power::getStatus()
     return I2cBus::i2c().readReg(REG_BAT_STATUS, 1);
 }
 
-uint8_t Power::getCurrent()
-{
-    return I2cBus::i2c().readReg(REG_ARDUINO_CURRENT, 1);
-}
+// uint8_t Power::getCurrent()
+// {
+//     return I2cBus::i2c().readReg(REG_ARDUINO_CURRENT, 1);
+// }
 
 uint8_t Power::getIoref()
 {

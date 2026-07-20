@@ -25,8 +25,7 @@
 #define REG_FW_VER_MINOR     0x05  ///< Firmware version — minor.
 #define REG_FW_VER_PATCH     0x06  ///< Firmware version — patch.
 #define REG_POWER_SWITCH     0x07  ///< Power switch control.
-#define REG_AUTO_SHUTDOWN    0x08  ///< Auto-shutdown configuration.
-#define REG_SYS_CTRL         0x09  ///< System control (write 0x40 = servo all-centre).
+#define REG_SYS_CTRL         0x09  ///< System control (bit7=soft reset, bit6=servo all-centre, bit5=enter IAP).
 #define REG_SHUTDOWN_SIGNAL  0x0A  ///< Write 0x01 to trigger PWR long-press shutdown.
 #define REG_KEY_SIGNAL            0x0B  ///< PWR button event.
 #define KEY_SIGNAL_PRESSED        0x01  ///< Single click.
@@ -40,17 +39,8 @@
 
 #define REG_BAT_VOLT         0x20  ///< Battery voltage (mV).
 #define REG_BAT_PERCENT      0x21  ///< Battery charge percentage (0–100).
-#define REG_BAT_STATUS       0x22  ///< Battery status flags (0=Normal, 1=Low, 2=Over, 3=Over Current).
-#define REG_ARDUINO_CURRENT  0x23  ///< Arduino board current draw (mA).
-
-//------------------------ Raw ADC registers (0x25–0x2A) — 16-bit, LE ------------------------//
-
-#define REG_RAW_BAT_ADC_L    0x25  ///< Raw battery ADC — low byte.
-#define REG_RAW_BAT_ADC_H    0x26  ///< Raw battery ADC — high byte.
-#define REG_RAW_CUR_ADC_L    0x27  ///< Raw current ADC — low byte.
-#define REG_RAW_CUR_ADC_H    0x28  ///< Raw current ADC — high byte.
-#define REG_RAW_IOREF_ADC_L  0x29  ///< Raw IOREF ADC — low byte.
-#define REG_RAW_IOREF_ADC_H  0x2A  ///< Raw IOREF ADC — high byte.
+#define REG_BAT_STATUS       0x22  ///< Battery status (0=Normal, 1=Charging, 2=Full, 3=Low).
+// #define REG_ARDUINO_CURRENT  0x23  ///< Arduino board current draw (mA).  (deprecated)
 
 //------------------------ PWM control registers (0x40–0x4B) ------------------------//
 
@@ -127,7 +117,6 @@
 #define I2C_ADDR_VALUE       0x20  ///< Default I2C address.
 #define IO_VOLT_VALUE        0x00  ///< IO voltage default (0 = Auto).
 #define POWER_SWITCH_VALUE   0xC1  ///< Power switch default.
-#define AUTO_SHUTDOWN_VALUE  0x8A  ///< Auto-shutdown default.
 #define SYS_CTRL_VALUE       0x00  ///< System control default.
 
 /** @brief PWM default period low byte. 0x4E20 = 20000 us → 50 Hz. */

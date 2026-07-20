@@ -1,6 +1,6 @@
 /**
  * @file Power.h
- * @brief Power telemetry — reads battery/current/voltage registers via I2cBus.
+ * @brief Power telemetry — reads battery/voltage registers via I2cBus.
  *
  * Register values are maintained by the co-processor's ADC and read on demand.
  */
@@ -31,16 +31,16 @@ public:
     uint8_t getPercent();
 
     /**
-     * @brief Read battery status flags.
-     * @return uint8_t 0=Normal, 1=Low Voltage, 2=Over Voltage, 3=Over Current.
+     * @brief Read battery status.
+     * @return uint8_t 0=Normal, 1=Charging, 2=Full, 3=Low.
      */
     uint8_t getStatus();
 
-    /**
-     * @brief Read Arduino board current draw.
-     * @return uint8_t Current in mA.
-     */
-    uint8_t getCurrent();
+    // /**
+    //  * @brief Read Arduino board current draw.
+    //  * @return uint8_t Current in mA.
+    //  */
+    // uint8_t getCurrent();
 
     /**
      * @brief Read IOREF voltage.

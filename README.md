@@ -3,7 +3,7 @@
 Hardware abstraction library for the UNO Q AI Robot shield. Runs on the Arduino UNO Q (STM32U5) board and acts as a **Bridge layer** connecting the Python application to I2C hardware peripherals (co-processor at address `0x20`).
 
 ```
-Python (main.py)  ←→  Bridge RPC  ←→  RobotShieldBridge  ←→  I2cBus  ←→  co-processor @ 0x20
+Python (main.py)  ←→  Bridge RPC  ←→  RobotShield  ←→  I2cBus  ←→  co-processor @ 0x20
 ```
 
 ## Features
@@ -11,7 +11,7 @@ Python (main.py)  ←→  Bridge RPC  ←→  RobotShieldBridge  ←→  I2cBus 
 - **Servo Control** — 12 servos, angle range -90° ~ 90°, auto-converted to 500–2500 μs pulses
 - **PWM Control** — 12 independent PWM channels with adjustable frequency and pulse width, individually enable/disable
 - **Motor Control** — 4 DC motors via dual-PWM H-bridge, supporting forward/reverse/brake, power range -100 ~ 100
-- **Power Monitoring** — Real-time battery voltage, charge percentage, status, board current, and IOREF voltage
+- **Power Monitoring** — Real-time battery voltage, charge percentage, status, and IOREF voltage
 - **I2C Pass-through** — Register read/write to the co-processor, accessed indirectly by Python via Bridge RPC
 
 ## Hardware Resources
@@ -79,7 +79,7 @@ void loop() {
 
 ## Bridge API Reference
 
-All functions are registered in `RobotShieldBridge::registerAll()`. Parameters are `String` type.
+All functions are registered in `RobotShield::registerAll()`. Parameters are `String` type.
 
 ### I2C Pass-through
 
@@ -94,8 +94,7 @@ All functions are registered in `RobotShieldBridge::registerAll()`. Parameters a
 |----------|-----------|-------------|
 | `get_bat_volt` | `(String) → int` | Battery voltage (mV) |
 | `get_bat_percent` | `(String) → int` | Battery charge percentage (0–100) |
-| `get_bat_status` | `(String) → int` | 0=Normal, 1=Low, 2=Over, 3=Over Current |
-| `get_arduino_current` | `(String) → int` | Arduino board current draw (mA) |
+| `get_bat_status` | `(String) → int` | 0=Normal, 1=Charging, 2=Full, 3=Low |
 | `get_ioref_volt` | `(String) → int` | IOREF voltage (mV) |
 
 ### PWM Control
@@ -120,13 +119,19 @@ All functions are registered in `RobotShieldBridge::registerAll()`. Parameters a
 |----------|-----------|-------------|
 | `motor_set_power` | `(String motor, String power)` | Set power: -100 (full reverse) ~ 100 (full forward), 0 = brake |
 
+### User Button
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `usr_btn_read` | `(String) → int` | Read USR button state (0x01=pressed, 0x00=released) |
+
 ## Examples
 
 | Example | Description |
 |---------|-------------|
 | [ServoSweep](examples/ServoSweep/ServoSweep.ino) | Sweep servo on channel 0 back and forth between -45° and 45° |
 | [MotorTest](examples/MotorTest/MotorTest.ino) | M0 motor: forward 3s → brake 1s → reverse 3s → brake |
-| [PowerReadout](examples/PowerReadout/PowerReadout.ino) | Print battery voltage, percentage, status, and current via Serial every 2s |
+| [PowerReadout](examples/PowerReadout/PowerReadout.ino) | Print battery voltage, percentage, status, and IOREF via Serial every 2s |
 
 ## Project Structure
 
@@ -140,11 +145,11 @@ robot-shield-arduino/
 │   ├── RobotShield.h               ← Main header (aggregates all modules)
 │   ├── reg_map.h                   ← I2C register map definitions
 │   ├── I2cBus.h / .cpp             ← I2C bus singleton
-│   ├── PwmChannel.h / .cpp         ← Single PWM channel
+│   ├── Pwm.h / .cpp                ← Single PWM channel
 │   ├── Servo.h / .cpp              ← Servo angle control
 │   ├── Motor.h / .cpp              ← DC motor H-bridge control
-│   ├── PowerMonitor.h / .cpp       ← Battery/current telemetry
-│   └── RobotShieldBridge.h / .cpp  ← Bridge registration hub
+│   ├── Power.h / .cpp              ← Battery/voltage telemetry
+│   └── RobotShield.h / .cpp        ← Bridge registration hub
 └── examples/                       ← Example sketches
     ├── ServoSweep/
     ├── MotorTest/
@@ -157,11 +162,11 @@ robot-shield-arduino/
 
 Each hardware module is encapsulated in its own class:
 - `I2cBus` — I2C bus singleton, wraps Arduino Wire for register read/write
-- `PwmChannel` — Single PWM channel: enable, period, pulse width
-- `Servo` — Composes `PwmChannel`, converts angle ↔ pulse width
-- `Motor` — Composes two `PwmChannel` instances for H-bridge push-pull drive
-- `PowerMonitor` — Reads co-processor power telemetry via `I2cBus`
-- `RobotShieldBridge` — Holds static instances of all modules, provides static wrapper methods for Bridge RPC
+- `Pwm` — Single PWM channel: enable, period, pulse width
+- `Servo` — Composes `Pwm`, converts angle ↔ pulse width
+- `Motor` — Composes two `Pwm` instances for H-bridge push-pull drive
+- `Power` — Reads co-processor power telemetry via `I2cBus`
+- `RobotShield` — Holds static instances of all modules, provides static wrapper methods for Bridge RPC
 
 ### I2C Pass-through Pattern
 
