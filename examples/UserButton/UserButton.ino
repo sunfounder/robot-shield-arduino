@@ -18,9 +18,12 @@ void loop()
 {
     uint8_t state = I2cBus::i2c().readReg(REG_USR_KEY_SIGNAL, 1);
 
-    if (state == USR_KEY_PRESSED) {
+    if (state == USR_KEY_PRESSED) 
+    {
         Serial.println("USR button: PRESSED");
-    } else {
+    } 
+    else 
+    {
         Serial.println("USR button: released");
     }
 
