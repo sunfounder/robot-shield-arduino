@@ -33,8 +33,8 @@
 #define KEY_SIGNAL_ZERO_ENTER     0x02  ///< Double-click enter zero.
 #define KEY_SIGNAL_ZERO_EXIT      0x03  ///< Double-click exit zero.
 #define REG_USR_KEY_SIGNAL        0x0C  ///< USR button event.
-#define USR_KEY_PRESSED           0x00  ///< USR button pressed.
-#define USR_KEY_RELEASED          0x01  ///< USR button released.
+#define USR_KEY_PRESSED           0x01  ///< USR button pressed.  (bit0=1)
+#define USR_KEY_RELEASED          0x00  ///< USR button released. (bit0=0)
 
 //------------------------ Battery / power registers (0x20–0x23) ------------------------//
 
